@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Islami • By Hamami</title>
+</head>
+<body style="font-family: Poppins, sans-serif; text-align: center; padding: 20px;">
+  <h1>Masukkan Nama Pemain</h1>
+  <input type="text" id="nama" placeholder="Nama kamu..." style="padding: 10px; width: 200px;">
+  <button onclick="kirimNama()">Kirim</button>
+
+  <h2>Daftar Pemain</h2>
+  <ul id="daftarPemain"></ul>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"></script>
+
+  <!-- File JS kamu -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>
