@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { firebaseConfig } from "./firebaseConfig.js";
+import { dataSoal } from "./soal.js";
 
 // Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
@@ -16,21 +17,8 @@ const playerName = prompt("Masukkan nama kamu:") || "Anonim";
 const level = prompt("Pilih level: easy / medium / hard") || "easy";
 
 // Soal (sementara, bisa diimpor dari soal.js)
-const questions = {
-  easy: [
-    { q: "Kitab suci umat Islam?", a: "Al-Qur'an" },
-    { q: "Bulan puasa?", a: "Ramadhan" },
-    { q: "Arah kiblat?", a: "Ka'bah" },
-  ],
-  medium: [
-    { q: "Nabi terakhir umat Islam adalah?", a: "Muhammad SAW" },
-    { q: "Nama gua tempat turunnya wahyu pertama?", a: "Hira" },
-  ],
-  hard: [
-    { q: "Berapa jumlah rakaat salat wajib sehari semalam?", a: "17" },
-    { q: "Nama lain dari malam Lailatul Qadar?", a: "Malam Kemuliaan" },
-  ]
-};
+const questions = dataSoal;
+  
 
 let score = 0;
 let indexSoal = 0;
@@ -121,3 +109,4 @@ document.getElementById("donasi").addEventListener("click", () => {
 window.tutupPopup = () => {
   popup.style.display = "none";
 };
+
