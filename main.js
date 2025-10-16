@@ -12,11 +12,10 @@ const submitBtn = document.getElementById("submitAnswer");
 const scoreEl = document.getElementById("score");
 const playerList = document.getElementById("playerList");
 
-// Nama & level pemain
 const playerName = prompt("Masukkan nama kamu:") || "Anonim";
 const level = prompt("Pilih level: easy / medium / hard") || "easy";
 
-// Soal (nanti bisa diimpor dari soal.js)
+// Soal (sementara, bisa diimpor dari soal.js)
 const questions = {
   easy: [
     { q: "Kitab suci umat Islam?", a: "Al-Qur'an" },
@@ -35,7 +34,9 @@ const questions = {
 
 let score = 0;
 let indexSoal = 0;
+let animasiAktif = false;
 
+// Fungsi tampil soal
 function tampilSoal() {
   const soal = questions[level];
   if (indexSoal < soal.length) {
@@ -43,23 +44,52 @@ function tampilSoal() {
   } else {
     questionEl.textContent = "🎉 Kuis selesai!";
     submitBtn.disabled = true;
-    // simpan ke Firebase
     push(ref(db, "players"), { name: playerName, level, score });
   }
 }
 tampilSoal();
 
+// Fungsi animasi skor
+function animasiSkor(dari, ke, durasi = 500) {
+  if (animasiAktif) return; // cegah bentrok animasi
+  animasiAktif = true;
+  const mulai = performance.now();
+
+  function update(waktuSekarang) {
+    const progress = Math.min((waktuSekarang - mulai) / durasi, 1);
+    const nilai = Math.floor(dari + (ke - dari) * progress);
+    scoreEl.textContent = nilai;
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    } else {
+      animasiAktif = false;
+    }
+  }
+  requestAnimationFrame(update);
+}
+
 // Cek jawaban
 submitBtn.addEventListener("click", () => {
   const jawaban = answerEl.value.trim().toLowerCase();
   const benar = questions[level][indexSoal].a.toLowerCase();
+
   if (jawaban === benar) {
+    const skorLama = score;
     score += 10;
-    scoreEl.textContent = score;
+    animasiSkor(skorLama, score);
     new Audio("https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3").play();
+
+    // efek visual
+    scoreEl.parentElement.style.transform = "scale(1.1)";
+    scoreEl.parentElement.style.transition = "transform 0.2s ease";
+    setTimeout(() => (scoreEl.parentElement.style.transform = "scale(1)"), 200);
   } else {
     new Audio("https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-buzzer-2969.mp3").play();
+    scoreEl.parentElement.style.color = "#c62828";
+    setTimeout(() => (scoreEl.parentElement.style.color = "#2e7d32"), 500);
   }
+
   answerEl.value = "";
   indexSoal++;
   tampilSoal();
@@ -71,10 +101,13 @@ onValue(ref(db, "players"), (snapshot) => {
   const data = snapshot.val();
   if (data) {
     const sorted = Object.values(data).sort((a, b) => b.score - a.score);
-    sorted.forEach(p => {
+    sorted.forEach((p, i) => {
       const div = document.createElement("div");
       div.classList.add("player");
-      div.innerHTML = `<span>${p.name} (${p.level})</span> <span>${p.score}</span>`;
+      div.innerHTML = `
+        <span>${i + 1}. ${p.name} (${p.level})</span>
+        <span><b>${p.score}</b></span>
+      `;
       playerList.appendChild(div);
     });
   }
