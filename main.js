@@ -1,8 +1,6 @@
-// Import modul dari Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// Konfigurasi Firebase kamu
 const firebaseConfig = {
   apiKey: "AIzaSyB35RYpFoHPFOFbQhr6rtbAWiWdGbta0I4",
   authDomain: "kuis-hamami.firebaseapp.com",
@@ -10,36 +8,69 @@ const firebaseConfig = {
   projectId: "kuis-hamami",
   storageBucket: "kuis-hamami.firebasestorage.app",
   messagingSenderId: "955115071133",
-  appId: "1:955115071133:web:c42d2f365082c74bf39674",
-  measurementId: "G-91K8FL32W4"
+  appId: "1:955115071133:web:c42d2f365082c74bf39674"
 };
 
-// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Fungsi untuk kirim nama ke database
-window.kirimNama = function() {
-  const nama = document.getElementById("nama").value.trim();
-  if (nama === "") return alert("Isi nama dulu ya!");
-  
-  push(ref(db, "pemain"), {
-    nama: nama,
-    waktu: Date.now()
-  });
+const namaInput = document.getElementById("namaInput");
+const btnKirim = document.getElementById("btnKirim");
+const daftarPemain = document.getElementById("daftarPemain");
+const kuisContainer = document.getElementById("kuisContainer");
+const soalText = document.getElementById("soalText");
+const jawabanInput = document.getElementById("jawabanInput");
+const btnJawab = document.getElementById("btnJawab");
+const hasil = document.getElementById("hasil");
+const levelSelect = document.getElementById("levelSelect");
 
-  document.getElementById("nama").value = "";
+let namaPemain = "";
+let indexSoal = 0;
+let levelDipilih = "easy";
+
+btnKirim.onclick = () => {
+  namaPemain = namaInput.value.trim();
+  levelDipilih = levelSelect.value;
+  if (namaPemain === "") return alert("Isi nama dulu!");
+
+  push(ref(db, "pemain/"), { nama: namaPemain, level: levelDipilih });
+  document.getElementById("formNama").style.display = "none";
+  kuisContainer.style.display = "block";
+  tampilkanSoal();
 };
 
-// Menampilkan daftar pemain secara real-time
-onValue(ref(db, "pemain"), (snapshot) => {
-  const data = snapshot.val();
-  const daftar = document.getElementById("daftarPemain");
-  daftar.innerHTML = "";
-
-  for (let id in data) {
+onValue(ref(db, "pemain/"), (snapshot) => {
+  daftarPemain.innerHTML = "";
+  snapshot.forEach((child) => {
+    const val = child.val();
     const li = document.createElement("li");
-    li.textContent = data[id].nama;
-    daftar.appendChild(li);
-  }
+    li.textContent = `${val.nama} (${val.level})`;
+    daftarPemain.appendChild(li);
+  });
 });
+
+function tampilkanSoal() {
+  const soal = data[levelDipilih];
+  if (indexSoal < soal.length) {
+    soalText.textContent = soal[indexSoal].q;
+    jawabanInput.value = "";
+    hasil.textContent = "";
+  } else {
+    soalText.textContent = `Kuis ${levelDipilih} selesai! Terima kasih, ${namaPemain}! 🎉`;
+    jawabanInput.style.display = "none";
+    btnJawab.style.display = "none";
+  }
+}
+
+btnJawab.onclick = () => {
+  const soal = data[levelDipilih];
+  const jawaban = jawabanInput.value.trim().toLowerCase();
+  if (jawaban === soal[indexSoal].a.toLowerCase()) {
+    hasil.textContent = "✅ Benar!";
+  } else {
+    hasil.textContent = `❌ Salah! Jawaban: ${soal[indexSoal].a}`;
+  }
+
+  indexSoal++;
+  setTimeout(tampilkanSoal, 1000);
+};
