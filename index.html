@@ -1,72 +1,154 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kuis Islami • By Hamami</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: #f4f7f9;
+      background: linear-gradient(135deg,#e0f7fa,#e3f2fd);
       text-align: center;
-      padding: 20px;
-      color: #333;
+      margin: 0;
+      padding: 0;
     }
-    h1 { color: #2b6cb0; }
-    input, select, button {
-      padding: 10px;
+    h1 {
+      color: #1565c0;
+      margin-top: 25px;
+    }
+    .box {
+      background: white;
+      width: 350px;
+      margin: 20px auto;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    input, button {
       font-size: 16px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      margin-top: 10px;
+      width: 80%;
+      margin-bottom: 10px;
     }
     button {
-      background: #2b6cb0;
+      background-color: #1565c0;
       color: white;
+      border: none;
       cursor: pointer;
+      font-weight: 600;
     }
-    button:hover { background: #2c5282; }
-    #kuisContainer {
-      margin-top: 30px;
-      display: none;
+    button:hover {
+      background-color: #0d47a1;
     }
-    #hasil {
+    .score {
       font-weight: bold;
+      color: #2e7d32;
       margin-top: 10px;
     }
-    ul { list-style: none; padding: 0; }
-    .level-container { margin-top: 10px; }
+    .leaderboard {
+      background: #e3f2fd;
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 15px;
+      text-align: left;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+    }
+    .leaderboard h3 {
+      color: #0d47a1;
+      text-align: center;
+      margin: 0 0 8px 0;
+    }
+    .player {
+      background: #fff;
+      padding: 6px 8px;
+      margin: 4px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    #donasi {
+      margin-top: 20px;
+      background-color: #f5b100;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #donasi:hover {
+      background-color: #d89b00;
+    }
+    #popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .popup-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .popup-content button {
+      background: #1565c0;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .popup-content a {
+      display: inline-block;
+      background: #00a8ff;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Kuis Islami • By Hamami</h1>
 
-  <div id="formNama">
-    <input type="text" id="namaInput" placeholder="Nama Pemain">
-    <div class="level-container">
-      <label for="levelSelect">Pilih Level:</label>
-      <select id="levelSelect">
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
+  <div class="box">
+    <p id="question"></p>
+    <input type="text" id="answer" placeholder="Tulis jawabanmu" />
+    <button id="submitAnswer">Kirim Jawaban</button>
+    <p class="score">Skor Kamu: <span id="score">0</span></p>
+  </div>
+
+  <div class="box leaderboard">
+    <h3>📋 Leaderboard</h3>
+    <div id="playerList"></div>
+  </div>
+
+  <button id="donasi">💖 Donasi via DANA</button>
+
+  <div id="popup">
+    <div class="popup-content">
+      <h3>Terima Kasih 🙏</h3>
+      <p>Dukunganmu sangat berarti untuk perkembangan game ini.<br>
+      Klik tombol di bawah untuk melanjutkan donasi ke DANA.</p>
+      <a href="https://link.dana.id/minta/hamami123" target="_blank">Lanjut ke DANA</a><br>
+      <button onclick="tutupPopup()">Tutup</button>
     </div>
-    <br>
-    <button id="btnKirim">Mulai Kuis</button>
   </div>
 
-  <h2>Daftar Pemain</h2>
-  <ul id="daftarPemain"></ul>
-
-  <div id="kuisContainer">
-    <h2 id="soalText"></h2>
-    <input type="text" id="jawabanInput" placeholder="Tulis jawabanmu">
-    <button id="btnJawab">Kirim Jawaban</button>
-    <p id="hasil"></p>
-  </div>
-
-  <script src="soal.js"></script>
   <script type="module" src="main.js"></script>
 </body>
 </html>
